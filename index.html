@@ -1,426 +1,1405 @@
-<!DOCTYPE html>
+
+ <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Aerovia — Where Purpose Meets Partnership</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Aerovia - AI-powered volunteer matching platform connecting NGOs with skilled volunteers">
+  <title>Aerovia — Where Purpose Meets Partnership</title>
   <style>
-    /* ---- Theme & layout (kept from your design) ---- */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    :root{
-      --primary:#0A84FF;--primary-dark:#0066CC;--text-primary:#1D1D1F;--text-secondary:#6E6E73;
-      --text-tertiary:#86868B;--bg-primary:#FFFFFF;--bg-secondary:#F5F5F7;--bg-glass:rgba(255,255,255,0.72);
-      --border:rgba(0,0,0,0.08);--shadow-sm:0 2px 8px rgba(0,0,0,0.04);--shadow-md:0 4px 24px rgba(0,0,0,0.08);
-      --shadow-lg:0 12px 48px rgba(0,0,0,0.12);--success:#34C759;
+
+    :root {
+      --primary: #0A84FF;
+      --primary-dark: #0066CC;
+      --text-primary: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --text-tertiary: #86868B;
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #F5F5F7;
+      --bg-glass: rgba(255, 255, 255, 0.72);
+      --border: rgba(0, 0, 0, 0.08);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.12);
+      --success: #34C759;
+      --warning: #FF9500;
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
-    body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial;color:var(--text-primary);background:var(--bg-primary);line-height:1.6}
-    nav{position:fixed;left:0;right:0;top:0;background:var(--bg-glass);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border);z-index:1000}
-    .nav-container{max-width:1280px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px}
-    .nav-logo{font-weight:600;font-size:20px;color:var(--text-primary);text-decoration:none}
-    .nav-links{display:flex;gap:20px;align-items:center}
-    .cta{color:var(--primary)}
-    .notification{position:fixed;top:20px;right:20px;padding:12px 18px;border-radius:10px;transform:translateX(300px);transition:all .28s;box-shadow:var(--shadow-lg);z-index:1200}
-    .notification.show{transform:translateX(0)}
-    .notification.success{background:var(--success);color:#fff}
-    .container{max-width:1100px;margin:0 auto;padding:120px 20px 80px}
-    .signin-card{background:var(--bg-secondary);border-radius:16px;border:1px solid var(--border);padding:32px;box-shadow:var(--shadow-md)}
-    .btn{padding:10px 16px;border-radius:12px;border:none;cursor:pointer;font-weight:600}
-    .btn-primary{background:var(--primary);color:#fff}
-    .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--primary)}
-    .signin-section{max-width:520px;margin:0 auto}
-    .small-muted{color:var(--text-tertiary);font-size:13px}
-    .hidden{display:none}
 
-    /* Onboard / NGO list styles */
-    .ngo-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
-    .ngo-card{background:#fff;border:1px solid var(--border);padding:12px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
-    .ngo-card h4{margin:0;font-size:15px}
-    .ngo-card p{margin:0;color:var(--text-secondary);font-size:13px}
-    .ngo-card.selected{outline:2px solid var(--primary);box-shadow:var(--shadow-sm)}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: #0A84FF;
+        --primary-dark: #409CFF;
+        --text-primary: #F5F5F7;
+        --text-secondary: #A1A1A6;
+        --text-tertiary: #6E6E73;
+        --bg-primary: #000000;
+        --bg-secondary: #1D1D1F;
+        --bg-glass: rgba(29, 29, 31, 0.72);
+        --border: rgba(255, 255, 255, 0.1);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.5);
+      }
+    }
 
-    /* Dashboard / matches */
-    .dashboard{max-width:1100px;margin:120px auto 80px;padding:0 20px}
-    .match-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px}
-    .match-score{background:var(--success);color:white;padding:6px 10px;border-radius:20px;font-size:12px;font-weight:700}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    /* modal */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:1300}
-    .modal{background:var(--bg-primary);max-width:520px;width:100%;padding:16px;border-radius:12px;border:1px solid var(--border)}
-    @media (max-width:650px){.container{padding:100px 16px}}
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-weight: 500;
+      z-index: 10000;
+      transform: translateX(400px);
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-lg);
+      max-width: 320px;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification.success { background: var(--success); color: white; }
+    .notification.error { background: #FF3B30; color: white; }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: var(--bg-glass);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    nav.scrolled {
+      background: var(--bg-glass);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 max(20px, env(safe-area-inset-right));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 44px;
+    }
+
+    .nav-logo {
+      font-size: 21px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .nav-logo:hover {
+      opacity: 0.7;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-links a.cta {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .user-status {
+      background: var(--success);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 120px 20px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      max-width: 980px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .hero h1 {
+      font-size: clamp(48px, 8vw, 80px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 21px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 40px;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 80px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(10, 132, 255, 0.3);
+    }
+
+    .btn-primary.loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 50%;
+      right: 20px;
+      margin-top: -8px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spinner 0.6s linear infinite;
+    }
+
+    @keyframes spinner {
+      to { transform: rotate(360deg); }
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      background: var(--bg-secondary);
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      padding: 32px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      margin-top: 40px;
+      border: 1px solid var(--border);
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Feature Cards */
+    .features {
+      padding: 120px 20px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 120px;
+    }
+
+    .feature-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 32px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+      border-color: transparent;
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      font-size: 24px;
+      color: white;
+    }
+
+    .feature-card h3 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* Dashboard */
+    .dashboard {
+      display: none;
+      padding: 120px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .dashboard.show {
+      display: block;
+    }
+
+    .matches-grid {
+      display: grid;
+      gap: 20px;
+      margin-top: 32px;
+    }
+
+    .match-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: left;
+    }
+
+    .match-score {
+      background: var(--success);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    /* How It Works */
+    .how-it-works {
+      padding: 120px 20px;
+      background: var(--bg-secondary);
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 80px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    .section-header p {
+      font-size: 19px;
+      color: var(--text-secondary);
+    }
+
+    .steps {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    .step {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      opacity: 0;
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .step:nth-child(2) { animation-delay: 0.1s; }
+    .step:nth-child(3) { animation-delay: 0.2s; }
+    .step:nth-child(4) { animation-delay: 0.3s; }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 56px;
+      height: 56px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .step-content h3 {
+      font-size: 21px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .step-content p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Sign In Section */
+    .signin-section {
+      padding: 120px 20px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .signin-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .signin-card h2 {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+
+    .signin-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: inherit;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.1);
+    }
+
+    .btn-full {
+      width: 100%;
+      margin-top: 24px;
+      justify-content: center;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 32px 0;
+      color: var(--text-tertiary);
+      font-size: 13px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .role-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 80px 20px 32px;
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-content {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links {
+        gap: 20px;
+      }
+
+      .nav-links a {
+        font-size: 13px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        width: 100%;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .stats {
+        gap: 24px;
+        padding: 24px;
+      }
+
+      .stat-number {
+        font-size: 28px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+      }
+
+      .signin-card {
+        padding: 32px 24px;
+      }
+
+      .role-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Small styles for NGO list */
+    .ngo-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+    .ngo-card { background: var(--bg-primary); border: 1px solid var(--border); padding: 12px; border-radius: 10px; cursor: pointer; display:flex; flex-direction:column; gap:6px; }
+    .ngo-card.selected { outline: 2px solid var(--primary); box-shadow: var(--shadow-sm); }
+    .ngo-card h4 { margin:0; font-size:15px; }
+    .ngo-card p { margin:0; color:var(--text-secondary); font-size:13px; }
+
+    /* modal/backdrop */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 2000; }
+    .modal { background: var(--bg-primary); padding: 20px; border-radius: 12px; width: 100%; max-width: 520px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
   </style>
 </head>
 <body>
-  <nav>
+
+  <!-- Notification -->
+  <div id="notification" class="notification"></div>
+
+  <nav id="nav">
     <div class="nav-container">
-      <a class="nav-logo" href="#" onclick="showLanding()">Aerovia</a>
+      <a href="#" class="nav-logo" onclick="showLanding()">Aerovia</a>
       <div class="nav-links" id="navLinks">
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
-        <a class="cta" href="#signin" onclick="showSignin()">Get Started</a>
+        <a href="#signin" class="cta" onclick="showSignin()">Get Started</a>
       </div>
     </div>
   </nav>
 
-  <div id="notification" class="notification" style="display:none"></div>
-
-  <main>
-    <section class="container" id="mainContent">
-      <div class="hero" style="text-align:center;margin-bottom:28px">
-        <h1 style="font-size:36px;margin-bottom:12px">Where purpose<br>meets partnership</h1>
-        <p style="max-width:760px;color:var(--text-secondary);margin:0 auto 20px">An intelligent platform that connects NGOs with volunteers through thoughtful, AI-powered matching.</p>
+  <!-- Dashboard -->
+  <section class="dashboard" id="dashboard">
+    <div style="display:flex;gap:16px;align-items:center;justify-content:center;margin-bottom:12px;">
+      <h1 style="margin-right:12px;">Welcome back, <span id="userName"></span>! 👋</h1>
+      <div id="tokensArea" style="display:flex;align-items:center;gap:8px;">
+        <div style="background:var(--bg-secondary); padding:6px 12px; border-radius:12px; border:1px solid var(--border);">
+          vTokens: <strong id="tokenCount">0</strong>
+        </div>
+        <button class="btn btn-secondary" onclick="openProfileEditor()">Edit profile</button>
       </div>
+    </div>
 
-      <!-- Sign-in -->
-      <section class="signin-section" id="signin">
-        <div class="signin-card">
-          <h2 style="text-align:center;margin-bottom:6px">Join Aerovia</h2>
-          <p class="small-muted" style="text-align:center;margin-bottom:14px">Start making impact today — free forever</p>
+    <p id="dashboardMessage"></p>
+    
+    <!-- NGO create opportunity form will be injected if user.role === 'ngo' -->
+    <div id="ngoCreateArea" style="margin-top:16px;"></div>
 
-          <form id="authForm">
-            <div style="margin-bottom:12px">
-              <label class="small-muted">Email</label>
-              <input id="email" type="email" placeholder="you@example.com" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border)">
-            </div>
-            <div style="margin-bottom:12px">
-              <label class="small-muted">Password</label>
-              <input id="password" type="password" placeholder="Enter your password" minlength="6" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border)">
-            </div>
-            <div style="display:flex;gap:8px;margin-bottom:12px">
-              <button class="btn btn-primary" id="submitBtn" type="submit" style="flex:1">Get started</button>
-              <button type="button" class="btn btn-secondary" onclick="quickLogin('volunteer')">Demo Volunteer</button>
-            </div>
-          </form>
+    <div id="matchesContainer" class="matches-grid"></div>
+    
+    <button class="btn btn-secondary btn-full" onclick="logout()" style="margin-top: 32px; max-width: 300px;">
+      Browse more opportunities
+    </button>
+  </section>
 
-          <div style="text-align:center;margin:12px 0;color:var(--text-tertiary)">— or —</div>
-
-          <div>
-            <button id="googleSignInBtn" class="btn btn-primary" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px">
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" style="width:18px;height:18px">
-              Continue with Google
-            </button>
-          </div>
+  <main id="mainContent">
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-badge">
+          🌍 SDG 17 — Partnerships for the Goals
         </div>
-      </section>
-
-      <!-- Onboarding (username + city + NGO selection) -->
-      <section class="signin-section hidden" id="onboard">
-        <div class="signin-card">
-          <h2 style="margin-bottom:6px">Finish creating your profile</h2>
-          <p class="small-muted" style="margin-bottom:12px">Choose a username, operating zone, and the NGO you want to associate with.</p>
-
-          <div style="margin-bottom:12px">
-            <label class="small-muted">Suggested username</label>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <input id="usernameInput" type="text" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border)">
-              <button id="generateUsernameBtn" class="btn btn-secondary" type="button">Generate</button>
-            </div>
-            <div id="usernameFeedback" class="small-muted" style="margin-top:8px"></div>
-          </div>
-
-          <div style="margin-bottom:12px">
-            <h3 style="margin-bottom:8px">Select Your Operating Zone</h3>
-            <select id="citySelect" onchange="loadNGOs()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border)">
-              <option value="">-- Choose a City --</option>
-              <option>Delhi</option><option>Mumbai</option><option>Bengaluru</option><option>Hyderabad</option><option>Chennai</option><option>Kolkata</option><option>Pune</option><option>Ahmedabad</option><option>Jaipur</option><option>Kochi</option>
-            </select>
-
-            <div id="ngoList" class="ngo-list" style="margin-top:12px"></div>
-            <div id="ngoSelectionFeedback" class="small-muted" style="margin-top:10px">Pick an NGO to follow/associate with your profile.</div>
-          </div>
-
-          <div style="display:flex;gap:10px;justify-content:flex-end">
-            <button id="skipProfileBtn" class="btn btn-secondary">Skip</button>
-            <button id="saveProfileBtn" class="btn btn-primary">Save profile</button>
-          </div>
+        <h1>Where purpose<br>meets partnership</h1>
+        <p>An intelligent platform that connects NGOs with volunteers through thoughtful, AI-powered matching — creating meaningful collaborations that drive real impact.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="showSignin()">
+            Get started free
+            <span>→</span>
+          </button>
+          <button class="btn btn-secondary" onclick="scrollToHow()">
+            Learn more
+          </button>
         </div>
-      </section>
-    </section>
-
-    <!-- Dashboard -->
-    <section id="dashboard" class="dashboard" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h2>Welcome, <span id="userName">User</span></h2>
-        <div style="display:flex;gap:12px;align-items:center">
-          <div style="background:var(--bg-secondary);padding:8px 12px;border-radius:10px;border:1px solid var(--border)">vTokens: <strong id="tokenCount">0</strong></div>
-          <button class="btn btn-secondary" onclick="openProfileEditor()">Edit profile</button>
-          <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-number">5K+</span>
+            <span class="stat-label">Active Volunteers</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">850+</span>
+            <span class="stat-label">NGO Partners</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">12K+</span>
+            <span class="stat-label">Matches Made</span>
+          </div>
         </div>
       </div>
-
-      <div id="matchesContainer"></div>
     </section>
+
+    <section class="features" id="features">
+      <div class="section-header reveal">
+        <h2>Built for impact</h2>
+        <p>Every feature designed to create authentic connections between organizations and volunteers who share the same vision.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon">🎯</div>
+          <h3>AI-Powered Matching</h3>
+          <p>Our intelligent algorithm analyzes skills, interests, location, and availability to find perfect matches in seconds.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon">💡</div>
+          <h3>Transparent Reasoning</h3>
+          <p>Every recommendation includes a clear explanation of why it's a great fit, building trust through transparency.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon">⚡</div>
+          <h3>Seamless Experience</h3>
+          <p>Intuitive interface designed for quick signup, easy matching, and effortless collaboration from day one.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon">🔒</div>
+          <h3>Verified Partners</h3>
+          <p>All NGOs undergo rigorous verification to ensure legitimacy and commitment to genuine social impact.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works" id="how">
+      <div class="section-header">
+        <h2>How Aerovia works</h2>
+        <p>A simple 4-step process that brings the right people together</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Create your profile</h3>
+            <p>Share your skills, interests, location, and availability. Takes less than 2 minutes to get started.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Get smart matches</h3>
+            <p>AI analyzes your profile against thousands of opportunities to surface the best fits for you.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Review & connect</h3>
+            <p>See detailed compatibility scores and reasoning, then connect directly with your top matches.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3>Make impact</h3>
+            <p>Start volunteering, track your hours, celebrate milestones, and create lasting change.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="signin-section" id="signin">
+      <div class="signin-card">
+        <h2>Join Aerovia</h2>
+        <p class="signin-subtitle">Start making impact today - free forever</p>
+        
+        <form id="authForm">
+          <div class="input-group">
+            <label for="email">Email address</label>
+            <input type="email" id="email" placeholder="you@example.com" required autocomplete="email" />
+          </div>
+
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password" minlength="6" />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+            Get started
+          </button>
+        </form>
+
+        <div class="divider">or try demo</div>
+
+        <!-- Google Sign-In button (integrated, non-destructive) -->
+        <div style="margin-bottom:16px;">
+          <button type="button" class="btn btn-primary btn-full" id="googleSignInBtn" style="display:flex; align-items:center; justify-content:center;">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" style="width:20px;height:20px;margin-right:8px;">
+            Continue with Google
+          </button>
+        </div>
+
+        <div class="role-buttons">
+          <button type="button" class="btn btn-secondary" onclick="quickLogin('volunteer')">
+            🌱 Demo Volunteer
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="quickLogin('ngo')">
+            🏢 Demo NGO
+          </button>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-tertiary);">
+          🔒 Demo data saved locally • No real emails sent
+        </div>
+      </div>
+    </section>
+
+    <!-- Onboarding / profile completion (hidden by default) -->
+    <section class="signin-section" id="onboard" style="display:none;">
+      <div class="signin-card">
+        <h2>Finish creating your profile</h2>
+        <p class="signin-subtitle">Choose a unique username, select your operating zone, pick an NGO and claim your vTokens</p>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-weight:600;margin-bottom:8px;">Suggested username</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="usernameInput" type="text" placeholder="choose-a-username" style="flex:1;padding:12px;border-radius:8px;border:1px solid var(--border)" />
+            <button id="generateUsernameBtn" class="btn btn-secondary" type="button">Generate</button>
+          </div>
+          <div id="usernameFeedback" style="margin-top:8px;color:var(--text-tertiary);font-size:13px;"></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <h3 style="margin-bottom:8px;">Select Your Operating Zone</h3>
+          <select id="citySelect" onchange="loadNGOs()" style="width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);">
+            <option value="">-- Choose a City --</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Bengaluru">Bengaluru</option>
+            <option value="Hyderabad">Hyderabad</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Kolkata">Kolkata</option>
+            <option value="Pune">Pune</option>
+            <option value="Ahmedabad">Ahmedabad</option>
+            <option value="Jaipur">Jaipur</option>
+            <option value="Kochi">Kochi</option>
+          </select>
+
+          <div id="ngoList" class="ngo-list" style="margin-top:12px;"></div>
+          <div id="ngoSelectionFeedback" style="margin-top:8px;color:var(--text-tertiary);font-size:13px;">Pick an NGO to follow/associate with your profile.</div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-weight:600;margin-bottom:8px;">vTokens</label>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div id="tokensDisplay" style="font-weight:700;font-size:18px;">—</div>
+            <div style="color:var(--text-secondary);font-size:13px;">vTokens help your volunteer profiles get highlighted to NGOs.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;">
+          <button id="saveProfileBtn" class="btn btn-primary">Save profile</button>
+          <button id="skipProfileBtn" class="btn btn-secondary">Skip for now</button>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- Profile editor modal -->
+  <!-- Profile Edit Modal -->
   <div id="profileModalBackdrop" class="modal-backdrop">
-    <div class="modal">
-      <h3>Edit profile</h3>
-      <div style="margin-top:8px">
-        <label class="small-muted">Name</label>
-        <input id="editName" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+      <h3 id="profileModalTitle">Edit profile</h3>
+      <div style="margin-top:12px;">
+        <label style="font-weight:600;">Name</label>
+        <input id="editName" type="text" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);margin-top:6px;" />
       </div>
-      <div style="margin-top:8px">
-        <label class="small-muted">Location</label>
-        <input id="editLocation" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border)">
+      <div style="margin-top:12px;">
+        <label style="font-weight:600;">Location</label>
+        <input id="editLocation" type="text" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);margin-top:6px;" />
       </div>
-      <div style="margin-top:8px">
-        <label class="small-muted">Skills (comma separated)</label>
-        <input id="editSkills" placeholder="teaching,writing" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border)">
+      <div style="margin-top:12px;">
+        <label style="font-weight:600;">Skills (comma separated)</label>
+        <input id="editSkills" type="text" placeholder="teaching,writing,marketing" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);margin-top:6px;" />
       </div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+      <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">
         <button class="btn btn-secondary" onclick="closeProfileEditor()">Cancel</button>
         <button class="btn btn-primary" onclick="saveProfileEdits()">Save</button>
       </div>
     </div>
   </div>
 
-  <footer style="text-align:center;padding:48px 20px;border-top:1px solid var(--border);color:var(--text-tertiary)">
-    © 2026 Aerovia — Advancing SDG 17
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#">About</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">For NGOs</a>
+        <a href="#">Support</a>
+      </div>
+      <p>© 2026 Aerovia. Advancing SDG 17 through intelligent partnerships. Made with ❤️ for social good.</p>
+    </div>
   </footer>
 
-  <!-- NGO data (provided by you) -->
+  <!-- NGO data (your list) -->
   <script>
     window.ngoData = {
-      Delhi:[{name:"Goonj",focus:"Urban Poverty & Clothing"},{name:"Smile Foundation",focus:"Education & Children"},{name:"CRY",focus:"Child Rights"},{name:"Pratham",focus:"Education"},{name:"Teach For India",focus:"Education"},{name:"Action Against Hunger",focus:"Nutrition"},{name:"HelpAge India",focus:"Elderly Care"},{name:"Uday Foundation",focus:"Healthcare"},{name:"Deepalaya",focus:"Community Development"},{name:"Azad Foundation",focus:"Women Empowerment"}],
-      Mumbai:[{name:"Akanksha Foundation",focus:"Education"},{name:"Beach Please",focus:"Environment"},{name:"Nanhi Kali",focus:"Girl Education"},{name:"Reality Gives",focus:"Youth Development"},{name:"Sneha",focus:"Women Safety"},{name:"Apnalaya",focus:"Urban Slums"},{name:"Magic Bus",focus:"Life Skills"},{name:"Aseema",focus:"Schooling"},{name:"Muskaan",focus:"Child Welfare"},{name:"Salaam Bombay",focus:"Adolescent Support"}],
-      Bengaluru:[{name:"Make A Difference",focus:"Child Welfare"},{name:"SayTrees",focus:"Afforestation"},{name:"Akshaya Patra",focus:"Midday Meals"},{name:"Dream A Dream",focus:"Youth Development"},{name:"Hasiru Dala",focus:"Waste Workers"},{name:"Swasthi",focus:"Public Health"},{name:"The/Nudge",focus:"Poverty Alleviation"},{name:"Samatva",focus:"Social Inclusion"},{name:"Reap Benefit",focus:"Civic Issues"},{name:"Karunashraya",focus:"Palliative Care"}],
-      Hyderabad:[{name:"Helping Hands Foundation",focus:"Disaster Relief"},{name:"U&I Trust",focus:"Education"},{name:"Sphoorti",focus:"Child Care"},{name:"SAFA",focus:"Women Development"},{name:"Deccan Development Society",focus:"Sustainable Agriculture"},{name:"Roshni Counselling",focus:"Mental Health"},{name:"Manzil",focus:"Education"},{name:"Asha Foundation",focus:"Healthcare"},{name:"YouWeCan",focus:"Youth Empowerment"},{name:"Helping Hand",focus:"Community Aid"}],
-      Chennai:[{name:"Bhumi",focus:"Youth Volunteering"},{name:"Hand in Hand",focus:"Livelihoods"},{name:"Udavum Karangal",focus:"Orphan Care"},{name:"Sneha",focus:"Emotional Support"},{name:"Aravind Eye Care",focus:"Healthcare"},{name:"Rural Education Development",focus:"Education"},{name:"The Banyan",focus:"Mental Health"},{name:"ExNoRa",focus:"Environment"},{name:"Agastya Foundation",focus:"Science Education"},{name:"Sevalaya",focus:"Rural Development"}],
-      Kolkata:[{name:"CINI",focus:"Child Nutrition"},{name:"Prayasam",focus:"Mental Health"},{name:"Calcutta Rescue",focus:"Healthcare"},{name:"Hope Foundation",focus:"Street Children"},{name:"Sanlaap",focus:"Anti-Trafficking"},{name:"Child in Need Institute",focus:"Health & Education"},{name:"Anudip",focus:"Digital Skills"},{name:"Tiljala Shed",focus:"Slum Education"},{name:"Ek Tara",focus:"Music Education"},{name:"Prayas India",focus:"Social Reform"}],
-      Pune:[{name:"Door Step School",focus:"Education"},{name:"Jeevitnadi",focus:"River Conservation"},{name:"Teach For India",focus:"Education"},{name:"Shelter Associates",focus:"Urban Housing"},{name:"Mitra",focus:"Disaster Response"},{name:"BAIF",focus:"Rural Livelihoods"},{name:"Deep Griha",focus:"Community Welfare"},{name:"Grampari",focus:"Women Empowerment"},{name:"Jnanaprabodhini",focus:"Youth Development"},{name:"Navjeevan",focus:"Rehabilitation"}],
-      Ahmedabad:[{name:"Manav Sadhna",focus:"Community Development"},{name:"Blind People’s Association",focus:"Disability Support"},{name:"SEWA",focus:"Women Workers"},{name:"Self Employed Women’s Association",focus:"Livelihoods"},{name:"Prayas",focus:"Education"},{name:"Sewa Rural",focus:"Healthcare"},{name:"Eklavya",focus:"Child Education"},{name:"Gujarat Forum",focus:"Urban Issues"},{name:"Sahaj",focus:"Social Justice"},{name:"Janvikas",focus:"Tribal Development"}],
-      Jaipur:[{name:"Barefoot College",focus:"Rural Development"},{name:"Apna Ghar",focus:"Women Safety"},{name:"I-India",focus:"Child Education"},{name:"Gramin Vikas",focus:"Village Development"},{name:"Seva Mandir",focus:"Tribal Welfare"},{name:"Jan Sahas",focus:"Anti-Bonded Labour"},{name:"URMUL",focus:"Livelihoods"},{name:"Sankalp",focus:"Skill Training"},{name:"Smile Society",focus:"Education"},{name:"Prayas Trust",focus:"Social Upliftment"}],
-      Kochi:[{name:"SEED",focus:"Sustainable Development"},{name:"CarePlus",focus:"Healthcare Access"},{name:"Thanal",focus:"Environment"},{name:"Rajagiri Outreach",focus:"Community Services"},{name:"Sanjeevani",focus:"Palliative Care"},{name:"Kudumbashree",focus:"Women Empowerment"},{name:"Sneha Bhavan",focus:"Orphan Care"},{name:"Rebuild Kerala",focus:"Disaster Recovery"},{name:"Green Army",focus:"Environmental Action"},{name:"Hope Foundation Kerala",focus:"Child Welfare"}]
+      Delhi: [
+        { name: "Goonj", focus: "Urban Poverty & Clothing" },
+        { name: "Smile Foundation", focus: "Education & Children" },
+        { name: "CRY", focus: "Child Rights" },
+        { name: "Pratham", focus: "Education" },
+        { name: "Teach For India", focus: "Education" },
+        { name: "Action Against Hunger", focus: "Nutrition" },
+        { name: "HelpAge India", focus: "Elderly Care" },
+        { name: "Uday Foundation", focus: "Healthcare" },
+        { name: "Deepalaya", focus: "Community Development" },
+        { name: "Azad Foundation", focus: "Women Empowerment" }
+      ],
+      Mumbai: [
+        { name: "Akanksha Foundation", focus: "Education" },
+        { name: "Beach Please", focus: "Environment" },
+        { name: "Nanhi Kali", focus: "Girl Education" },
+        { name: "Reality Gives", focus: "Youth Development" },
+        { name: "Sneha", focus: "Women Safety" },
+        { name: "Apnalaya", focus: "Urban Slums" },
+        { name: "Magic Bus", focus: "Life Skills" },
+        { name: "Aseema", focus: "Schooling" },
+        { name: "Muskaan", focus: "Child Welfare" },
+        { name: "Salaam Bombay", focus: "Adolescent Support" }
+      ],
+      Bengaluru: [
+        { name: "Make A Difference", focus: "Child Welfare" },
+        { name: "SayTrees", focus: "Afforestation" },
+        { name: "Akshaya Patra", focus: "Midday Meals" },
+        { name: "Dream A Dream", focus: "Youth Development" },
+        { name: "Hasiru Dala", focus: "Waste Workers" },
+        { name: "Swasthi", focus: "Public Health" },
+        { name: "The/Nudge", focus: "Poverty Alleviation" },
+        { name: "Samatva", focus: "Social Inclusion" },
+        { name: "Reap Benefit", focus: "Civic Issues" },
+        { name: "Karunashraya", focus: "Palliative Care" }
+      ],
+      Hyderabad: [
+        { name: "Helping Hands Foundation", focus: "Disaster Relief" },
+        { name: "U&I Trust", focus: "Education" },
+        { name: "Sphoorti", focus: "Child Care" },
+        { name: "SAFA", focus: "Women Development" },
+        { name: "Deccan Development Society", focus: "Sustainable Agriculture" },
+        { name: "Roshni Counselling", focus: "Mental Health" },
+        { name: "Manzil", focus: "Education" },
+        { name: "Asha Foundation", focus: "Healthcare" },
+        { name: "YouWeCan", focus: "Youth Empowerment" },
+        { name: "Helping Hand", focus: "Community Aid" }
+      ],
+      Chennai: [
+        { name: "Bhumi", focus: "Youth Volunteering" },
+        { name: "Hand in Hand", focus: "Livelihoods" },
+        { name: "Udavum Karangal", focus: "Orphan Care" },
+        { name: "Sneha", focus: "Emotional Support" },
+        { name: "Aravind Eye Care", focus: "Healthcare" },
+        { name: "Rural Education Development", focus: "Education" },
+        { name: "The Banyan", focus: "Mental Health" },
+        { name: "ExNoRa", focus: "Environment" },
+        { name: "Agastya Foundation", focus: "Science Education" },
+        { name: "Sevalaya", focus: "Rural Development" }
+      ],
+      Kolkata: [
+        { name: "CINI", focus: "Child Nutrition" },
+        { name: "Prayasam", focus: "Mental Health" },
+        { name: "Calcutta Rescue", focus: "Healthcare" },
+        { name: "Hope Foundation", focus: "Street Children" },
+        { name: "Sanlaap", focus: "Anti-Trafficking" },
+        { name: "Child in Need Institute", focus: "Health & Education" },
+        { name: "Anudip", focus: "Digital Skills" },
+        { name: "Tiljala Shed", focus: "Slum Education" },
+        { name: "Ek Tara", focus: "Music Education" },
+        { name: "Prayas India", focus: "Social Reform" }
+      ],
+      Pune: [
+        { name: "Door Step School", focus: "Education" },
+        { name: "Jeevitnadi", focus: "River Conservation" },
+        { name: "Teach For India", focus: "Education" },
+        { name: "Shelter Associates", focus: "Urban Housing" },
+        { name: "Mitra", focus: "Disaster Response" },
+        { name: "BAIF", focus: "Rural Livelihoods" },
+        { name: "Deep Griha", focus: "Community Welfare" },
+        { name: "Grampari", focus: "Women Empowerment" },
+        { name: "Jnanaprabodhini", focus: "Youth Development" },
+        { name: "Navjeevan", focus: "Rehabilitation" }
+      ],
+      Ahmedabad: [
+        { name: "Manav Sadhna", focus: "Community Development" },
+        { name: "Blind People’s Association", focus: "Disability Support" },
+        { name: "SEWA", focus: "Women Workers" },
+        { name: "Self Employed Women’s Association", focus: "Livelihoods" },
+        { name: "Prayas", focus: "Education" },
+        { name: "Sewa Rural", focus: "Healthcare" },
+        { name: "Eklavya", focus: "Child Education" },
+        { name: "Gujarat Forum", focus: "Urban Issues" },
+        { name: "Sahaj", focus: "Social Justice" },
+        { name: "Janvikas", focus: "Tribal Development" }
+      ],
+      Jaipur: [
+        { name: "Barefoot College", focus: "Rural Development" },
+        { name: "Apna Ghar", focus: "Women Safety" },
+        { name: "I-India", focus: "Child Education" },
+        { name: "Gramin Vikas", focus: "Village Development" },
+        { name: "Seva Mandir", focus: "Tribal Welfare" },
+        { name: "Jan Sahas", focus: "Anti-Bonded Labour" },
+        { name: "URMUL", focus: "Livelihoods" },
+        { name: "Sankalp", focus: "Skill Training" },
+        { name: "Smile Society", focus: "Education" },
+        { name: "Prayas Trust", focus: "Social Upliftment" }
+      ],
+      Kochi: [
+        { name: "SEED", focus: "Sustainable Development" },
+        { name: "CarePlus", focus: "Healthcare Access" },
+        { name: "Thanal", focus: "Environment" },
+        { name: "Rajagiri Outreach", focus: "Community Services" },
+        { name: "Sanjeevani", focus: "Palliative Care" },
+        { name: "Kudumbashree", focus: "Women Empowerment" },
+        { name: "Sneha Bhavan", focus: "Orphan Care" },
+        { name: "Rebuild Kerala", focus: "Disaster Recovery" },
+        { name: "Green Army", focus: "Environmental Action" },
+        { name: "Hope Foundation Kerala", focus: "Child Welfare" }
+      ]
     };
-    window.__selectedNgoForOnboard = null;
   </script>
 
-  <!-- Client UI logic (non-module) -->
   <script>
-    // Helper shortcuts
-    const $ = id => document.getElementById(id);
-    function showNotification(msg, type='success') {
-      const n = $('notification');
-      n.textContent = msg;
-      n.className = 'notification ' + (type === 'success' ? 'success show' : 'show');
+    // ---------- Client state & UI helpers (preserve original app behavior) ----------
+    let currentUser = null;
+    let opportunities = [
+      { id: 1, title: "Weekend Tree Planting - Delhi", ngo: "Green Earth Foundation", location: "Delhi", skills: ["teamwork", "outdoor", "fundraising"], description: "Join monthly tree planting events. Perfect for beginners!", score: 0, reasoning: "" },
+      { id: 2, title: "Math Tutoring Mentor - Mumbai", ngo: "Teach For India", location: "Mumbai", skills: ["teaching", "mathematics"], description: "2 hours/week helping underprivileged students", score: 0, reasoning: "" },
+      { id: 3, title: "Content Writer - Remote", ngo: "Digital Volunteers", location: "Remote", skills: ["writing", "content"], description: "Create social media content for NGOs", score: 0, reasoning: "" },
+      { id: 4, title: "Fundraising Assistant - Bangalore", ngo: "Hope Foundation", location: "Bangalore", skills: ["fundraising", "marketing"], description: "Help organize crowdfunding campaigns", score: 0, reasoning: "" }
+    ];
+
+    // UI helpers
+    function showNotification(message, type = 'success') {
+      const n = document.getElementById('notification');
+      n.textContent = message;
+      n.className = `notification ${type} show`;
       n.style.display = 'block';
-      setTimeout(()=> { n.style.display = 'none'; n.className = 'notification'; }, 3500);
+      setTimeout(() => {
+        n.classList.remove('show');
+        n.style.display = 'none';
+      }, 3500);
     }
 
-    // NGO list rendering (used during onboarding)
-    function loadNGOs() {
-      const city = $('citySelect').value;
-      const ngoList = $('ngoList');
-      window.__selectedNgoForOnboard = null;
-      ngoList.innerHTML = '';
-      if (!city) { ngoList.innerHTML = '<div class="small-muted">Choose a city to see NGOs</div>'; return; }
-      const list = (window.ngoData && window.ngoData[city]) || [];
-      if (!list.length) { ngoList.innerHTML = '<div class="small-muted">No NGOs available</div>'; return; }
-      list.forEach(n => {
-        const card = document.createElement('div');
-        card.className = 'ngo-card';
-        card.tabIndex = 0;
-        card.innerHTML = `<h4>${n.name}</h4><p>${n.focus}</p>`;
-        card.addEventListener('click', () => {
-          ngoList.querySelectorAll('.ngo-card').forEach(c => c.classList.remove('selected'));
-          card.classList.add('selected');
-          window.__selectedNgoForOnboard = n;
-          const fb = $('ngoSelectionFeedback'); if (fb) fb.textContent = `Selected: ${n.name} — ${n.focus}`;
+    function initAnimations() {
+      const nav = document.getElementById('nav');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
+      });
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
-        card.addEventListener('keypress', e => { if (e.key === 'Enter') card.click(); });
-        ngoList.appendChild(card);
       });
     }
-    window.loadNGOs = loadNGOs;
 
-    // Form handlers: email/demo flows (local)
     document.addEventListener('DOMContentLoaded', () => {
-      const authForm = $('authForm');
-      authForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = $('submitBtn');
-        const orig = btn.textContent;
-        btn.disabled = true; btn.textContent = 'Processing...';
-        const email = $('email').value.trim();
-        const password = $('password').value;
-        // Demo accounts or simple local create
-        const demoVolunteer = { id:'demo-vol', email:'volunteer@aerovia.com', role:'volunteer', name:'Priya Sharma', skills:['teaching','teamwork'], location:'Delhi', tokens:10 };
-        const demoNGO = { id:'demo-ngo', email:'ngo@aerovia.com', role:'ngo', name:'Green Earth Foundation', skills:['fundraising'], location:'Delhi', tokens:0 };
-        let user = null;
-        if (email === demoVolunteer.email && password === 'demo123') user = demoVolunteer;
-        else if (email === demoNGO.email && password === 'demo123') user = demoNGO;
-        else {
-          user = { id: Date.now(), email, role: email.includes('ngo') ? 'ngo' : 'volunteer', name: email.split('@')[0].replace('.', ' ').replace(/^\w/, c => c.toUpperCase()), skills:['teamwork'], location:'India', tokens:5 };
-        }
-        localStorage.setItem('aeroviaUser', JSON.stringify(user));
-        showNotification('Signed in locally: ' + user.name);
-        setTimeout(()=> {
-          btn.disabled = false; btn.textContent = orig;
-          // show onboarding if user lacks username / operating zone
-          const onboard = $('onboard'), signin = $('signin'), dashboard = $('dashboard');
-          signin.classList.add('hidden'); onboard.classList.remove('hidden'); dashboard.style.display = 'none';
-          // prefill username suggestion
-          $('usernameInput').value = (user.name || 'user').toLowerCase().replace(/[^a-z0-9]+/g,'-') + Math.floor(100 + Math.random()*900);
-          $('usernameFeedback').textContent = '';
-        }, 600);
-      });
-
-      // Generate username
-      $('generateUsernameBtn')?.addEventListener('click', () => {
-        const candidate = (window._firebaseUserForOnboard && window._firebaseUserForOnboard.displayName) ? window._firebaseUserForOnboard.displayName.split(' ')[0].toLowerCase() : 'user';
-        $('usernameInput').value = candidate.replace(/[^a-z0-9]+/g,'-') + Math.floor(100+Math.random()*900);
-        $('usernameFeedback').textContent = 'New suggestion generated';
-      });
-
-      // Save profile (onboarding) - delegates to Firebase module when available, otherwise saves locally
-      $('saveProfileBtn')?.addEventListener('click', async () => {
-        const desired = ($('usernameInput').value || '').trim().toLowerCase();
-        const usernameFeedback = $('usernameFeedback');
-        if (!desired || !/^[a-z0-9-]{3,24}$/.test(desired)) { usernameFeedback.textContent = 'Username 3–24 chars (letters, numbers, dashes).'; return; }
-        $('saveProfileBtn').disabled = true; $('saveProfileBtn').textContent = 'Saving...';
-        usernameFeedback.textContent = 'Reserving username...';
-        try {
-          const city = $('citySelect').value || '';
-          const prefNgo = window.__selectedNgoForOnboard || null;
-
-          // If Firebase helper exposed, use it (Google sign-in flow)
-          if (window.reserveUsernameAndCreateUser && window._firebaseUserForOnboard) {
-            const fu = window._firebaseUserForOnboard;
-            await window.reserveUsernameAndCreateUser(fu.uid, desired, {
-              email: fu.email || '', name: fu.displayName || '', tokens:10, operatingZone: city, preferredNgo: prefNgo
-            });
-            // fetch resulting profile (module exposes a helper later; we'll rely on localStorage update by module)
-            showNotification('Profile saved (Firebase). Redirecting to dashboard...');
-            // small delay so module's onAuthStateChanged mapping runs
-            setTimeout(()=> { $('onboard').classList.add('hidden'); $('dashboard').style.display = 'block'; }, 600);
-          } else {
-            // local/demo: store in localStorage
-            const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
-            stored.username = desired; stored.operatingZone = city; stored.preferredNgo = prefNgo; stored.tokens = stored.tokens != null ? stored.tokens : 10;
-            localStorage.setItem('aeroviaUser', JSON.stringify(stored));
-            showNotification('Profile saved locally');
-            $('onboard').classList.add('hidden'); renderDashboardFromLocal();
-          }
-        } catch (err) {
-          console.error(err);
-          usernameFeedback.textContent = err.message === 'username-already-taken' ? 'Username taken — try another.' : 'Could not save profile.';
-        } finally {
-          $('saveProfileBtn').disabled = false; $('saveProfileBtn').textContent = 'Save profile';
-        }
-      });
-
-      // Skip onboarding
-      $('skipProfileBtn')?.addEventListener('click', async () => {
-        $('skipProfileBtn').disabled = true;
-        try {
-          const city = $('citySelect').value || '';
-          const prefNgo = window.__selectedNgoForOnboard || null;
-          if (window.reserveUsernameAndCreateUser && window._firebaseUserForOnboard) {
-            const fu = window._firebaseUserForOnboard;
-            const fallback = `${fu.displayName ? fu.displayName.split(' ')[0].toLowerCase().replace(/[^a-z0-9]+/g,'-') : 'user'}-${fu.uid.slice(0,6)}`;
-            await window.reserveUsernameAndCreateUser(fu.uid, fallback, { email: fu.email || '', name: fu.displayName || '', tokens:5, operatingZone: city, preferredNgo: prefNgo });
-            showNotification('Profile created with fallback username');
-            setTimeout(()=> { $('onboard').classList.add('hidden'); $('dashboard').style.display = 'block'; }, 400);
-          } else {
-            const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
-            stored.username = stored.username || ('user-'+Math.floor(Math.random()*10000));
-            stored.operatingZone = city;
-            stored.preferredNgo = prefNgo;
-            stored.tokens = stored.tokens != null ? stored.tokens : 5;
-            localStorage.setItem('aeroviaUser', JSON.stringify(stored));
-            showNotification('Profile saved locally (skipped)');
-            $('onboard').classList.add('hidden'); renderDashboardFromLocal();
-          }
-        } catch (e) {
-          console.error(e); showNotification('Skip failed', 'error');
-        } finally { $('skipProfileBtn').disabled = false; }
-      });
-
-      // Profile modal actions
-      // openProfileEditor/saveProfileEdits/closeProfileEditor are declared below as global wrappers (they check for Firebase helper)
+      const savedUser = localStorage.getItem('aeroviaUser');
+      if (savedUser) {
+        try { currentUser = JSON.parse(savedUser); calculateMatches(); showDashboard(); } catch(e) {}
+      }
+      initAnimations();
+      setupForm();
     });
 
-    // Small helpers to render dashboard from localStorage (demo/no-backend)
-    function renderDashboardFromLocal() {
-      const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
-      const user = stored || { name:'User', tokens:0 };
-      $('userName').textContent = user.name || user.username || user.email || 'User';
-      $('tokenCount').textContent = user.tokens || 0;
-      // simple filtering by operatingZone if present
-      const zone = user.operatingZone || null;
-      const matches = (window.localOpps || [
-        {id:1,title:"Weekend Tree Planting - Delhi",ngo:"Green Earth",location:"Delhi",description:"Join monthly tree planting events."},
-        {id:2,title:"Math Tutoring Mentor - Mumbai",ngo:"Teach For India",location:"Mumbai",description:"2 hours/week tutoring."}
-      ]).filter(o => !zone || o.location.toLowerCase().includes(zone.toLowerCase()) || o.location === 'Remote');
-      const container = $('matchesContainer'); container.innerHTML = '';
-      matches.forEach(opp => {
-        const elCard = document.createElement('div'); elCard.className = 'match-card';
-        elCard.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
-          <div><div class="match-score">—</div><h3 style="margin:8px 0 4px">${opp.title}</h3><p style="margin:0"><strong>${opp.ngo}</strong> • ${opp.location}</p></div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button class="btn btn-primary" onclick="alert('Apply flow not implemented in demo')">Apply</button>
-            <button class="btn btn-secondary" onclick="alert('Save flow not implemented in demo')">Save</button>
-          </div>
-        </div><p style="margin-top:10px;color:var(--text-secondary)">${opp.description}</p>`;
-        container.appendChild(elCard);
-      });
-      // nav update
-      $('navLinks').innerHTML = `<a href="#features">Features</a><a href="#how">How it works</a><span style="background:var(--success);color:#fff;padding:6px 10px;border-radius:12px">${(user.role||'VOL').toUpperCase()}</span><a class="cta" href="#" onclick="logout()">Logout</a>`;
-      $('signin').classList.add('hidden'); $('onboard').classList.add('hidden'); $('dashboard').style.display = 'block';
+    function setupForm() {
+      document.getElementById('authForm').addEventListener('submit', handleAuth);
     }
 
-    // Profile modal wrappers
-    window.openProfileEditor = function(){
-      const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}') || {};
-      $('profileModalBackdrop').style.display = 'flex';
-      $('editName').value = stored.name || stored.username || '';
-      $('editLocation').value = stored.location || '';
-      $('editSkills').value = (stored.skills || []).join(',');
-    };
-    window.closeProfileEditor = function(){ $('profileModalBackdrop').style.display = 'none'; };
-    window.saveProfileEdits = async function(){
-      const name = $('editName').value.trim(); const location = $('editLocation').value.trim();
-      const skills = $('editSkills').value.split(',').map(s=>s.trim()).filter(Boolean);
-      // If Firebase helper present, use server-backed update; else update localStorage
-      if (window._saveProfileEdits) {
-        await window._saveProfileEdits({ name, location, skills });
+    async function handleAuth(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const originalText = btn.innerHTML;
+      btn.classList.add('loading'); btn.innerHTML = 'Creating account...';
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const demoVolunteer = { id: 'demo-vol', email: 'volunteer@aerovia.com', password: 'demo123', role: 'volunteer', name: 'Priya Sharma', skills: ['teaching', 'teamwork'], location: 'Delhi', tokens: 10 };
+      const demoNGO = { id: 'demo-ngo', email: 'ngo@aerovia.com', password: 'demo123', role: 'ngo', name: 'Green Earth Foundation', skills: ['fundraising'], location: 'Delhi', tokens: 0 };
+
+      let user = null;
+      if (email === demoVolunteer.email && password === demoVolunteer.password) user = demoVolunteer;
+      else if (email === demoNGO.email && password === demoNGO.password) user = demoNGO;
+      else user = { id: Date.now().toString(), email, role: email.includes('ngo') ? 'ngo' : 'volunteer', name: email.split('@')[0].replace('.', ' ').replace(/^\w/, c => c.toUpperCase()), skills: ['teamwork'], location: 'India', createdAt: new Date().toISOString(), tokens: 5 };
+
+      currentUser = user;
+      localStorage.setItem('aeroviaUser', JSON.stringify(user));
+      setTimeout(() => {
+        btn.classList.remove('loading'); btn.innerHTML = originalText;
+        showNotification('Welcome to Aerovia! 🎉', 'success');
+        calculateMatches();
+        // show onboarding if no username/operatingZone
+        if (!user.username) {
+          document.getElementById('signin').scrollIntoView({ behavior: 'smooth' });
+          document.getElementById('onboard').style.display = 'block';
+          document.getElementById('mainContent').style.display = 'none';
+        } else {
+          showDashboard();
+        }
+      }, 900);
+    }
+
+    function quickLogin(role) {
+      const user = role === 'volunteer' ? { id: 'demo-vol', email: 'demo@volunteer.com', role: 'volunteer', name: 'Demo Volunteer', skills: ['teaching','teamwork','writing'], location: 'Delhi', tokens: 10 } : { id: 'demo-ngo', email: 'demo@ngo.com', role: 'ngo', name: 'Demo NGO', skills: ['fundraising','management'], location: 'Mumbai', tokens: 0 };
+      currentUser = user;
+      localStorage.setItem('aeroviaUser', JSON.stringify(user));
+      showNotification(`Logged in as ${user.name}`, 'success');
+      calculateMatches();
+      // show onboarding for demo users if no username
+      if (!user.username) {
+        document.getElementById('signin').classList.add('hidden');
+        document.getElementById('onboard').style.display = 'block';
+        document.getElementById('mainContent').style.display = 'none';
       } else {
-        const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
-        stored.name = name; stored.location = location; stored.skills = skills;
-        localStorage.setItem('aeroviaUser', JSON.stringify(stored));
-        showNotification('Profile saved locally');
-        renderDashboardFromLocal();
+        showDashboard();
       }
-      window.closeProfileEditor();
-    };
+    }
 
-    // logout wrapper (works with or without firebase)
-    window.logout = async function(){
+    function calculateMatches() {
+      if (!currentUser) return;
+      opportunities.forEach(opp => {
+        let score = 0;
+        const skillMatches = (currentUser.skills || []).filter(skill => opp.skills.includes(skill));
+        score += Math.min(skillMatches.length * 25, 50);
+        if ((currentUser.location || '').toLowerCase().includes(opp.location.toLowerCase()) || opp.location === 'Remote') score += 30;
+        if (currentUser.role === 'volunteer') score += 20;
+        opp.score = Math.round(score);
+        opp.reasoning = `${skillMatches.length} skill matches • ${opp.location} opportunity`;
+      });
+      opportunities.sort((a,b) => b.score - a.score);
+    }
+
+    function showDashboard() {
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('dashboard').classList.add('show');
+      document.getElementById('userName').textContent = currentUser.name || currentUser.username || currentUser.email || 'User';
+      document.getElementById('dashboardMessage').textContent = currentUser.role === 'volunteer' ? `Found ${opportunities.filter(o => o.score > 50).length} great matches for your skills in ${currentUser.location}!` : 'Manage your volunteer opportunities and track impact.';
+      document.getElementById('tokenCount').textContent = (currentUser.tokens != null) ? currentUser.tokens : (currentUser.tokens = 0, 0);
+
+      const navLinks = document.getElementById('navLinks');
+      navLinks.innerHTML = `
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <span class="user-status">${(currentUser.role || '').toUpperCase()}</span>
+        <a href="#" class="cta" onclick="logout()">Logout</a>
+      `;
+
+      // Show matches or NGO area
+      const container = document.getElementById('matchesContainer');
+      if (currentUser.role === 'volunteer') {
+        container.innerHTML = opportunities.map(opp => {
+          const canBoost = (currentUser.tokens || 0) > 0;
+          return `
+            <div class="match-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div class="match-score">${opp.score}% Match</div>
+                  <h3 style="margin-top:8px;margin-bottom:4px;">${opp.title}</h3>
+                  <p style="margin:0;"><strong>${opp.ngo}</strong> • ${opp.location}</p>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <button class="btn btn-primary" onclick="applyToOpportunity(${opp.id}, false)">Apply</button>
+                  <button class="btn btn-primary" style="${canBoost ? '' : 'opacity:0.5;pointer-events:none;'}" onclick="applyToOpportunity(${opp.id}, true)">Apply & Boost (−1 vToken)</button>
+                  <button class="btn btn-secondary" onclick="bookmarkOpportunity(${opp.id})">Save</button>
+                </div>
+              </div>
+              <p style="margin-top:12px;">${opp.description}</p>
+              <p style="color:var(--text-tertiary);font-size:13px;"><em>${opp.reasoning}</em></p>
+            </div>
+          `;
+        }).join('');
+      } else {
+        container.innerHTML = opportunities.map(opp => `
+          <div class="match-card">
+            <h3>${opp.title}</h3>
+            <p><strong>${opp.ngo}</strong> • ${opp.location}</p>
+            <p>${opp.description}</p>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="btn btn-secondary" onclick="editOpportunity(${opp.id})">Edit</button>
+              <button class="btn btn-primary" onclick="viewApplicants(${opp.id})">View Applications</button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function showLanding() {
+      document.getElementById('dashboard').classList.remove('show');
+      document.getElementById('mainContent').style.display = 'block';
+    }
+
+    function showSignin() {
+      document.querySelector('#signin').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function scrollToHow() {
+      document.querySelector('#how').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function logout() {
       if (window.firebaseSignOut) {
-        try { await window.firebaseSignOut(); } catch(e){ console.warn(e); }
+        try { await window.firebaseSignOut(); } catch (err) { console.warn('Firebase sign-out error', err); }
       }
+      currentUser = null;
       localStorage.removeItem('aeroviaUser');
-      $('dashboard').style.display = 'none';
-      $('signin').classList.remove('hidden');
-      $('onboard').classList.add('hidden');
-      showNotification('Logged out');
-    };
+      showLanding();
+      try { document.getElementById('authForm').reset(); } catch (e) {}
+      showNotification('Logged out successfully', 'success');
+    }
 
-    // small helpers for UI navigation
-    function showLanding(){ $('dashboard').style.display = 'none'; $('signin').classList.remove('hidden'); $('onboard').classList.add('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
-    function showSignin(){ $('signin').scrollIntoView({behavior:'smooth'}); }
+    function applyToOpportunity(oppId, boost) {
+      if (window._applyToOpportunity) return window._applyToOpportunity(oppId, boost);
+      showNotification('Not connected to backend', 'error');
+    }
 
+    function bookmarkOpportunity(oppId) {
+      if (window._bookmarkOpportunity) return window._bookmarkOpportunity(oppId);
+      showNotification('Not connected to backend', 'error');
+    }
+
+    // Profile modal handlers
+    function openProfileEditor() {
+      document.getElementById('profileModalBackdrop').style.display = 'flex';
+      document.getElementById('editName').value = currentUser.name || '';
+      document.getElementById('editLocation').value = currentUser.location || '';
+      document.getElementById('editSkills').value = (currentUser.skills || []).join(',');
+    }
+    function closeProfileEditor() { document.getElementById('profileModalBackdrop').style.display = 'none'; }
+
+    async function saveProfileEdits() {
+      if (!window._saveProfileEdits) {
+        const name = document.getElementById('editName').value.trim();
+        const location = document.getElementById('editLocation').value.trim();
+        const skills = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(Boolean);
+        currentUser.name = name; currentUser.location = location; currentUser.skills = skills;
+        localStorage.setItem('aeroviaUser', JSON.stringify(currentUser));
+        showNotification('Profile updated (local)', 'success');
+        closeProfileEditor();
+        calculateMatches(); showDashboard();
+        return;
+      }
+      const name = document.getElementById('editName').value.trim();
+      const location = document.getElementById('editLocation').value.trim();
+      const skills = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(Boolean);
+      await window._saveProfileEdits({ name, location, skills });
+      closeProfileEditor();
+    }
+
+    // small NGO helper placeholders (can be implemented / connected to Firestore)
+    function editOpportunity(id) { showNotification('Edit opportunity - not implemented', 'error'); }
+    function viewApplicants(id) { showNotification('View applicants - not implemented', 'error'); }
   </script>
 
-  <!-- Firebase module: auth + firestore + backend operations -->
+  <!-- Firebase Auth + Firestore integration (modular SDK) -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, runTransaction, serverTimestamp, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      runTransaction,
+      serverTimestamp,
+      collection,
+      getDocs,
+      addDoc
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
+    // Firebase config (from your earlier snippet)
     const firebaseConfig = {
       apiKey: "AIzaSyD0I5r9LVAUZAnQExJSctFxMwqZjq9xDAE",
       authDomain: "aerovia-b630f.firebaseapp.com",
@@ -431,23 +1410,45 @@
       measurementId: "G-70VRBVN5G5"
     };
 
-    const app = (!getApps().length) ? initializeApp(firebaseConfig) : getApp();
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-    const db = getFirestore(app);
+    // Initialize or reuse Firebase app
+    let firebaseApp;
+    if (!getApps().length) {
+      firebaseApp = initializeApp(firebaseConfig);
+      try { getAnalytics(firebaseApp); } catch (e) { /* ignore analytics errors */ }
+    } else {
+      firebaseApp = getApp();
+    }
 
-    // Expose signOut and auth object
-    window.firebaseSignOut = async () => { try { await signOut(auth); } catch (e) { console.warn(e); throw e; } };
+    const auth = getAuth(firebaseApp);
+    const provider = new GoogleAuthProvider();
+    const db = getFirestore(firebaseApp);
+
+    // Expose signOut helper
+    window.firebaseSignOut = async () => {
+      try { await signOut(auth); } catch (err) { console.warn('firebaseSignOut error', err); throw err; }
+    };
     window.firebaseAuth = auth;
 
-    // Reserve username + create or merge user document atomically
+    // Helper: slugify & username candidate
+    function slugifyName(name) {
+      return (name || 'user').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
+    }
+    function makeCandidate(displayName) {
+      const base = slugifyName((displayName || '').split(' ')[0] || displayName || 'user');
+      const rand = Math.floor(100 + Math.random() * 900);
+      return `${base}${rand}`;
+    }
+
+    // Atomic username reservation + create user doc
     async function reserveUsernameAndCreateUser(uid, username, profileData = {}) {
       const usernameRef = doc(db, 'usernames', username);
       const userRef = doc(db, 'users', uid);
-      return runTransaction(db, async (tx) => {
-        const existing = await tx.get(usernameRef);
-        if (existing.exists()) throw new Error('username-already-taken');
+
+      return await runTransaction(db, async (tx) => {
+        const unameSnap = await tx.get(usernameRef);
+        if (unameSnap.exists()) throw new Error('username-already-taken');
         tx.set(usernameRef, { uid, createdAt: serverTimestamp() });
+
         const userSnap = await tx.get(userRef);
         const now = serverTimestamp();
         if (!userSnap.exists()) {
@@ -467,48 +1468,51 @@
             lastSeen: now
           });
         } else {
-          tx.set(userRef, { username, lastSeen: now, operatingZone: profileData.operatingZone || undefined, preferredNgo: profileData.preferredNgo || undefined }, { merge: true });
+          tx.set(userRef, {
+            username,
+            lastSeen: now,
+            operatingZone: profileData.operatingZone || undefined,
+            preferredNgo: profileData.preferredNgo || undefined
+          }, { merge: true });
         }
         return true;
       });
     }
     window.reserveUsernameAndCreateUser = reserveUsernameAndCreateUser;
 
-    // Load opportunities (optional)
-    async function loadOpportunitiesFromFirestore(){
+    // Load opportunities from Firestore (if any)
+    async function loadOpportunitiesFromFirestore() {
       try {
-        const snaps = await getDocs(collection(db,'opportunities'));
-        if (!snaps.empty) {
-          const docs = snaps.docs.map(d => {
-            const data = d.data();
-            return { id: data._localId || d.id, title: data.title, ngo: data.ngo, location: data.location, skills: data.skills || [], description: data.description || '' };
-          });
-          window.localOpps = docs;
-        }
-      } catch(e){ console.warn(e); }
+        const snaps = await getDocs(collection(db, 'opportunities'));
+        const docs = snaps.docs.map(d => {
+          const data = d.data();
+          return { id: data._localId || d.id, title: data.title, ngo: data.ngo, location: data.location, skills: data.skills || [], description: data.description || '' };
+        });
+        if (docs.length) window.opportunities = docs;
+      } catch (err) { console.warn('loadOpportunities error', err); }
     }
+    window.loadOpportunitiesFromFirestore = loadOpportunitiesFromFirestore;
 
-    // Apply to opportunity (transactional vToken decrement + application write)
-    async function _applyToOpportunity(oppId, boost){
-      if (!window.currentUser && !localStorage.getItem('aeroviaUser')) { alert('Please sign in first'); return; }
-      const localUser = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
-      const uid = (localUser && localUser.id) ? localUser.id : (auth.currentUser && auth.currentUser.uid);
+    // Apply to opportunity (transactional)
+    async function _applyToOpportunity(oppId, boost) {
+      if (!auth.currentUser && !localStorage.getItem('aeroviaUser')) { alert('Please sign in first'); return; }
+      const uid = auth.currentUser ? auth.currentUser.uid : JSON.parse(localStorage.getItem('aeroviaUser') || '{}').id;
       if (!uid) { alert('Please sign in'); return; }
       try {
         await runTransaction(db, async (tx) => {
-          const uRef = doc(db,'users',uid);
-          const uSnap = await tx.get(uRef);
-          if (!uSnap.exists()) throw new Error('no-user');
-          const uData = uSnap.data();
+          const userRef = doc(db, 'users', uid);
+          const userSnap = await tx.get(userRef);
+          if (!userSnap.exists()) throw new Error('no-user');
+          const userData = userSnap.data();
           if (boost) {
-            const tokens = uData.tokens || 0;
+            const tokens = userData.tokens || 0;
             if (tokens < 1) throw new Error('no-tokens');
-            tx.update(uRef, { tokens: tokens - 1, lastSeen: serverTimestamp() });
+            tx.update(userRef, { tokens: tokens - 1 });
           }
-          const appRef = doc(collection(db,'applications'));
+          const appRef = doc(collection(db, 'applications'));
           tx.set(appRef, { uid, oppId, boosted: !!boost, createdAt: serverTimestamp(), status: 'applied' });
         });
-        // update local token count if present
+        // update localStorage tokens
         const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
         if (stored && stored.tokens != null && boost) {
           stored.tokens = Math.max(0, stored.tokens - 1);
@@ -517,91 +1521,242 @@
         }
         alert('Application submitted' + (boost ? ' (boost used)' : ''));
       } catch (err) {
-        console.error(err);
+        console.error('apply error', err);
         if (err.message === 'no-tokens') alert('Not enough vTokens');
-        else alert('Could not apply. Try again.');
+        else alert('Could not apply, try again');
       }
     }
     window._applyToOpportunity = _applyToOpportunity;
 
     // Bookmark
-    async function _bookmarkOpportunity(oppId){
-      const localUser = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
-      const uid = (localUser && localUser.id) ? localUser.id : (auth.currentUser && auth.currentUser.uid);
+    async function _bookmarkOpportunity(oppId) {
+      const uid = auth.currentUser ? auth.currentUser.uid : JSON.parse(localStorage.getItem('aeroviaUser') || '{}').id;
       if (!uid) { alert('Please sign in'); return; }
       try {
-        await setDoc(doc(db,'bookmarks', `${uid}_${oppId}`), { uid, oppId, createdAt: serverTimestamp() });
+        await setDoc(doc(db, 'bookmarks', `${uid}_${oppId}`), { uid, oppId, createdAt: serverTimestamp() });
         alert('Saved to bookmarks');
       } catch (err) { console.error(err); alert('Could not save bookmark'); }
     }
     window._bookmarkOpportunity = _bookmarkOpportunity;
 
-    // Save profile edits (update Firestore)
-    async function _saveProfileEdits({ name, location, skills }){
-      const firebaseUid = auth.currentUser && auth.currentUser.uid;
-      if (!firebaseUid) {
-        // update localStorage fallback
+    // Save profile edits
+    async function _saveProfileEdits({ name, location, skills }) {
+      const uid = auth.currentUser ? auth.currentUser.uid : JSON.parse(localStorage.getItem('aeroviaUser') || '{}').id;
+      if (!uid) {
         const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
         stored.name = name; stored.location = location; stored.skills = skills;
         localStorage.setItem('aeroviaUser', JSON.stringify(stored));
-        showNotification('Profile updated (local)');
+        showNotification('Profile updated (local)', 'success');
         return;
       }
       try {
-        await setDoc(doc(db,'users',firebaseUid), { name, location, skills, lastSeen: serverTimestamp() }, { merge:true });
-        // update localStorage
-        const snap = await getDoc(doc(db,'users',firebaseUid));
+        await setDoc(doc(db, 'users', uid), { name, location, skills, lastSeen: serverTimestamp() }, { merge: true });
+        const snap = await getDoc(doc(db, 'users', uid));
         if (snap.exists()) localStorage.setItem('aeroviaUser', JSON.stringify(snap.data()));
-        showNotification('Profile updated');
+        showNotification('Profile updated', 'success');
       } catch (err) { console.error(err); showNotification('Could not save profile', 'error'); }
     }
     window._saveProfileEdits = _saveProfileEdits;
 
     // Create opportunity (NGO)
-    async function _createOpportunity({ title, location, skills, desc }){
-      const uid = auth.currentUser && auth.currentUser.uid;
-      // optionally check role in users/{uid}
+    async function _createOpportunity({ title, location, skills, desc }) {
+      if (!auth.currentUser) { showNotification('Sign in as NGO to create opportunities', 'error'); return; }
       try {
-        await addDoc(collection(db,'opportunities'), { title, location, skills: skills||[], description: desc||'', ngo: (auth.currentUser && auth.currentUser.displayName) || 'NGO', createdAt: serverTimestamp(), _localId: Date.now().toString() });
+        await addDoc(collection(db, 'opportunities'), { title, location, skills: skills || [], description: desc || '', ngo: auth.currentUser.displayName || 'NGO', createdAt: serverTimestamp(), _localId: Date.now().toString() });
         await loadOpportunitiesFromFirestore();
-        showNotification('Opportunity created');
-        // update UI by reloading matches on client (non-module code will pick up window.localOpps)
-      } catch (e) { console.error(e); showNotification('Could not create opportunity', 'error'); }
+        showNotification('Opportunity created', 'success');
+      } catch (err) { console.error(err); showNotification('Could not create opportunity', 'error'); }
     }
     window._createOpportunity = _createOpportunity;
 
-    // onAuthStateChanged: decide to show onboarding or dashboard
+    // Hook Google sign-in button (popup)
+    const googleBtn = document.getElementById('googleSignInBtn');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', async () => {
+        googleBtn.disabled = true; googleBtn.classList.add('loading');
+        try {
+          const result = await signInWithPopup(auth, provider);
+          console.log('Google sign-in result:', result);
+        } catch (err) {
+          console.error('Google sign-in error', err);
+          alert('Google sign-in failed: ' + (err?.message || err));
+        } finally {
+          googleBtn.disabled = false; googleBtn.classList.remove('loading');
+        }
+      });
+    }
+
+    // Prepare onboarding UI: fill username suggestion, etc.
+    async function openOnboardFor(firebaseUser) {
+      if (!firebaseUser) return;
+      const uid = firebaseUser.uid;
+      const userRef = doc(db, 'users', uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists() && userSnap.data().username) {
+        const data = userSnap.data();
+        currentUser = {
+          id: data.uid || uid,
+          email: data.email,
+          role: data.role || 'volunteer',
+          name: data.name || firebaseUser.displayName || firebaseUser.email,
+          skills: data.skills || ['teamwork'],
+          location: data.location || 'India',
+          tokens: data.tokens || 0,
+          username: data.username,
+          operatingZone: data.operatingZone || '',
+          preferredNgo: data.preferredNgo || null
+        };
+        localStorage.setItem('aeroviaUser', JSON.stringify(currentUser));
+        calculateMatches(); showDashboard(); return;
+      }
+
+      document.getElementById('onboard').style.display = 'block'; document.getElementById('mainContent').style.display = 'none'; document.getElementById('dashboard').classList.remove('show');
+
+      document.getElementById('usernameInput').value = makeCandidate(firebaseUser.displayName || firebaseUser.email || 'user');
+      document.getElementById('usernameFeedback').textContent = '';
+      document.getElementById('tokensDisplay').textContent = '10';
+      window._firebaseUserForOnboard = firebaseUser;
+    }
+    window.openOnboardFor = openOnboardFor;
+
+    // onAuth: if Firestore user exists with username skip onboarding; otherwise show onboarding
     onAuthStateChanged(auth, async (user) => {
       if (!user) return;
       try {
         await loadOpportunitiesFromFirestore();
-        const userRef = doc(db,'users',user.uid);
+        const userRef = doc(db, 'users', user.uid);
         const snap = await getDoc(userRef);
         if (!snap.exists() || !snap.data().username) {
-          // prepare onboarding UI (prefill suggestion)
-          window._firebaseUserForOnboard = user;
-          $('signin').classList.add('hidden'); $('onboard').classList.remove('hidden'); $('dashboard').style.display = 'none';
-          $('usernameInput').value = (user.displayName || user.email || 'user').split(' ')[0].toLowerCase().replace(/[^a-z0-9]+/g,'-') + Math.floor(100+Math.random()*900);
-          $('usernameFeedback').textContent = '';
+          openOnboardFor(user);
           return;
         } else {
-          // map Firestore profile to localStorage and show dashboard
-          const data = snap.data();
-          const mapped = { id: data.uid || user.uid, name: data.name || user.displayName || user.email.split('@')[0], email: data.email || user.email, role: data.role || 'volunteer', skills: data.skills || ['teamwork'], location: data.location || 'India', tokens: data.tokens || 0, username: data.username, operatingZone: data.operatingZone || '', preferredNgo: data.preferredNgo || null };
-          localStorage.setItem('aeroviaUser', JSON.stringify(mapped));
-          // Render dashboard from localStorage using client UI helper
-          document.querySelectorAll('[id^="notification"]').length && showNotification('Signed in as ' + mapped.name);
-          // Small delay to allow UI to update
-          setTimeout(()=> { try { window.renderDashboardFromLocal ? window.renderDashboardFromLocal() : null; } catch(e){} }, 200);
+          const d = snap.data();
+          currentUser = {
+            id: d.uid || user.uid,
+            email: d.email || user.email,
+            role: d.role || 'volunteer',
+            name: d.name || user.displayName || user.email,
+            skills: d.skills || ['teamwork'],
+            location: d.location || 'India',
+            tokens: d.tokens || 0,
+            username: d.username,
+            operatingZone: d.operatingZone || '',
+            preferredNgo: d.preferredNgo || null
+          };
+          localStorage.setItem('aeroviaUser', JSON.stringify(currentUser));
+          calculateMatches(); showNotification(`Signed in as ${currentUser.name}`, 'success'); showDashboard();
+          return;
         }
       } catch (err) {
-        console.error(err);
-        showNotification('Sign-in succeeded but profile check failed', 'error');
+        console.error('auth handler error', err);
+        currentUser = { id: user.uid, email: user.email || '', role: 'volunteer', name: user.displayName || user.email, skills: ['teamwork'], location: 'India', tokens: 10 };
+        localStorage.setItem('aeroviaUser', JSON.stringify(currentUser));
+        calculateMatches(); showDashboard();
       }
     });
 
-    // expose helper to globally fetch opportunities
-    window.loadOpportunitiesFromFirestore = loadOpportunitiesFromFirestore;
+    // Hook onboarding UI buttons (save/skip/generate)
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('generateUsernameBtn')?.addEventListener('click', () => {
+        document.getElementById('usernameInput').value = makeCandidate((window._firebaseUserForOnboard && window._firebaseUserForOnboard.displayName) || (currentUser && currentUser.name) || 'user');
+        document.getElementById('usernameFeedback').textContent = 'New suggestion generated';
+      });
+
+      document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+        const desired = (document.getElementById('usernameInput').value || '').trim().toLowerCase();
+        const usernameFeedback = document.getElementById('usernameFeedback');
+        if (!desired || !/^[a-z0-9-]{3,24}$/.test(desired)) { usernameFeedback.textContent = 'Username must be 3–24 characters, letters/numbers/dashes only.'; return; }
+        document.getElementById('saveProfileBtn').disabled = true; document.getElementById('saveProfileBtn').classList.add('loading'); usernameFeedback.textContent = 'Reserving username...';
+        try {
+          const fu = window._firebaseUserForOnboard || null;
+          const city = document.getElementById('citySelect')?.value || '';
+          const selectedNgo = window.__selectedNgoForOnboard || null;
+          if (fu) {
+            const profileData = { email: fu.email || '', name: fu.displayName || '', photoURL: fu.photoURL || '', tokens: 10, operatingZone: city, preferredNgo: selectedNgo };
+            await reserveUsernameAndCreateUser(fu.uid, desired, profileData);
+            const userSnap = await getDoc(doc(db, 'users', fu.uid));
+            const d = userSnap.data();
+            currentUser = { id: d.uid, email: d.email, role: d.role, name: d.name, skills: d.skills || ['teamwork'], location: d.location || 'India', tokens: d.tokens || 0, username: d.username, operatingZone: d.operatingZone || '', preferredNgo: d.preferredNgo || null };
+            localStorage.setItem('aeroviaUser', JSON.stringify(currentUser));
+            usernameFeedback.textContent = 'Saved! Redirecting...';
+            showNotification('Profile saved — welcome ' + currentUser.username + '!', 'success');
+            document.getElementById('onboard').style.display = 'none';
+            calculateMatches(); showDashboard();
+          } else {
+            // fallback: local user
+            const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
+            stored.username = desired; stored.operatingZone = city; stored.preferredNgo = selectedNgo; stored.tokens = stored.tokens != null ? stored.tokens : 10;
+            localStorage.setItem('aeroviaUser', JSON.stringify(stored)); currentUser = stored;
+            usernameFeedback.textContent = 'Saved locally';
+            showNotification('Profile saved locally', 'success');
+            document.getElementById('onboard').style.display = 'none';
+            calculateMatches(); showDashboard();
+          }
+        } catch (err) {
+          if (err.message === 'username-already-taken') { document.getElementById('usernameFeedback').textContent = 'That username is already taken — try another.'; }
+          else { console.error(err); document.getElementById('usernameFeedback').textContent = 'Error saving profile. Try again.'; }
+        } finally {
+          document.getElementById('saveProfileBtn').disabled = false; document.getElementById('saveProfileBtn').classList.remove('loading');
+        }
+      });
+
+      document.getElementById('skipProfileBtn')?.addEventListener('click', async () => {
+        const fu = window._firebaseUserForOnboard;
+        const city = document.getElementById('citySelect')?.value || '';
+        const selectedNgo = window.__selectedNgoForOnboard || null;
+        document.getElementById('skipProfileBtn').disabled = true;
+        try {
+          if (fu) {
+            const fallback = `${slugifyName(fu.displayName || fu.email || 'user')}-${fu.uid.slice(0,6)}`;
+            await reserveUsernameAndCreateUser(fu.uid, fallback, { email: fu.email || '', name: fu.displayName || '', tokens: 5, operatingZone: city, preferredNgo: selectedNgo });
+            const userSnap = await getDoc(doc(db, 'users', fu.uid));
+            const d = userSnap.data();
+            currentUser = { id: d.uid, email: d.email, role: d.role, name: d.name, skills: d.skills || ['teamwork'], location: d.location || 'India', tokens: d.tokens || 0, username: d.username, operatingZone: d.operatingZone || '', preferredNgo: d.preferredNgo || null };
+            localStorage.setItem('aeroviaUser', JSON.stringify(currentUser));
+          } else {
+            const stored = JSON.parse(localStorage.getItem('aeroviaUser') || '{}');
+            stored.username = stored.username || ('user-'+Math.floor(Math.random()*10000));
+            stored.operatingZone = city;
+            stored.preferredNgo = selectedNgo;
+            stored.tokens = stored.tokens != null ? stored.tokens : 5;
+            localStorage.setItem('aeroviaUser', JSON.stringify(stored));
+            currentUser = stored;
+          }
+          document.getElementById('onboard').style.display = 'none';
+          calculateMatches(); showDashboard();
+        } catch (e) {
+          console.warn(e);
+          showNotification('Skip failed — try saving instead', 'error');
+        } finally {
+          document.getElementById('skipProfileBtn').disabled = false;
+        }
+      });
+
+      // Render NGO cards when city changes (client function)
+      window.loadNGOs = function() {
+        const city = document.getElementById('citySelect').value;
+        const ngoList = document.getElementById('ngoList');
+        window.__selectedNgoForOnboard = null;
+        ngoList.innerHTML = '';
+        if (!city) { ngoList.innerHTML = '<div style="color:var(--text-tertiary)">Choose a city to see NGOs</div>'; return; }
+        const list = (window.ngoData && window.ngoData[city]) || [];
+        list.forEach(n => {
+          const card = document.createElement('div');
+          card.className = 'ngo-card';
+          card.tabIndex = 0;
+          card.innerHTML = `<h4>${n.name}</h4><p>${n.focus}</p>`;
+          card.addEventListener('click', () => {
+            ngoList.querySelectorAll('.ngo-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            window.__selectedNgoForOnboard = n;
+            const fb = document.getElementById('ngoSelectionFeedback'); if (fb) fb.textContent = `Selected: ${n.name} — ${n.focus}`;
+          });
+          card.addEventListener('keypress', (e) => { if (e.key === 'Enter') card.click(); });
+          ngoList.appendChild(card);
+        });
+      };
+    });
   </script>
+
 </body>
 </html>
